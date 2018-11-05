@@ -2,6 +2,11 @@
 
 Server Side Request Forgery or SSRF is a vulnerability in which an attacker forces a server to perform requests on their behalf.
 
+Tools:
+
+- [SSRFmap - https://github.com/swisskyrepo/SSRFmap](https://github.com/swisskyrepo/SSRFmap)
+- [Gopherus - https://github.com/tarunkant/Gopherus](https://github.com/tarunkant/Gopherus)
+
 ## Summary
 
 * [Exploit with localhost](#summary)
@@ -85,8 +90,8 @@ Bypass localhost with a domain redirecting to locahost
 
 ```powershell
 http://localtest.me
-http://n-pn.info
 http://customer1.app.localhost.my.company.127.0.0.1.nip.io
+http://mail.ebc.apple.com redirect to 127.0.0.6 == localhost
 ```
 
 The service nip.io is awesome for that, it will convert any ip address as a dns.
@@ -459,3 +464,4 @@ More info: https://rancher.com/docs/rancher/v1.6/en/rancher-services/metadata-se
 * [PHP SSRF @secjuice](https://medium.com/secjuice/php-ssrf-techniques-9d422cb28d51)
 * [How I convert SSRF to xss in a ssrf vulnerable Jira](https://medium.com/@D0rkerDevil/how-i-convert-ssrf-to-xss-in-a-ssrf-vulnerable-jira-e9f37ad5b158)
 * [Piercing the Veil: Server Side Request Forgery to NIPRNet access](https://medium.com/bugbountywriteup/piercing-the-veil-server-side-request-forgery-to-niprnet-access-c358fd5e249a)
+* [Hacker101 SSRF](https://www.youtube.com/watch?v=66ni2BTIjS8)

