@@ -1,4 +1,20 @@
-# OAuth 2 - Common vulnerabilities
+# OAuth
+
+## Summary
+
+- [Stealing OAuth Token via referer](#stealing-oauth-token-via-referer)
+- [Grabbing OAuth Token via redirect_uri](#grabbing-oauth-token-via-redirect---uri)
+- [Executing XSS via redirect_uri](#executing-xss-via-redirect---uri)
+- [OAuth private key disclosure](#oauth-private-key-disclosure)
+- [Authorization Code Rule Violation](#authorization-code-rule-violation)
+- [Cross-Site Request Forgery](#cross-site-request-forgery)
+- [References](#references)
+
+## Stealing OAuth Token via referer
+
+From [@abugzlife1](https://twitter.com/abugzlife1/status/1125663944272748544) tweet.
+
+> Do you have HTML injection but can't get XSS? Are there any OAuth implementations on the site? If so, setup an img tag to your server and see if there's a way to get the victim there (redirect, etc.) after login to steal OAuth tokens via referer 
 
 ## Grabbing OAuth Token via redirect_uri
 
@@ -46,9 +62,10 @@ Applications that do not check for a valid CSRF token in the OAuth callback are 
 
 > The client MUST implement CSRF protection for its redirection URI. This is typically accomplished by requiring any request sent to the redirection URI endpoint to include a value that binds the request to the user-agent's authenticated state. The client SHOULD utilize the "state" request parameter to deliver this value to the authorization server when making an authorization request.
 
-## Thanks to
+## References
 
 * [All your Paypal OAuth tokens belong to me - localhost for the win - INTO THE SYMMETRY](http://blog.intothesymmetry.com/2016/11/all-your-paypal-tokens-belong-to-me.html)
 * [OAuth 2 - How I have hacked Facebook again (..and would have stolen a valid access token) - INTO THE SYMMETRY](http://intothesymmetry.blogspot.ch/2014/04/oauth-2-how-i-have-hacked-facebook.html)
 * [How I hacked Github again. - Egor Homakov](http://homakov.blogspot.ch/2014/02/how-i-hacked-github-again.html)
 * [How Microsoft is giving your data to Facebook… and everyone else - Andris Atteka](http://andrisatteka.blogspot.ch/2014/09/how-microsoft-is-giving-your-data-to.html)
+- [Bypassing Google Authentication on Periscope's Administration Panel](https://whitton.io/articles/bypassing-google-authentication-on-periscopes-admin-panel/) By Jack Whitton
