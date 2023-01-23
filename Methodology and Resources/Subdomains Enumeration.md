@@ -14,6 +14,7 @@
   * AltDNS
   * MassDNS
   * Nmap
+  * Dnsdumpster
 * Subdomain take over
   * tko-subs
   * HostileSubBruteForcer
@@ -163,6 +164,13 @@ cat /tmp/results_subfinder.txt | massdns -r $DNS_RESOLVERS -t A -o S -w /tmp/res
 nmap -sn --script hostmap-crtsh host_to_scan.tld
 ```
 
+### Using dnsdumpster
+
+```ps1
+git clone https://github.com/nmmapper/dnsdumpster
+python dnsdumpster.py -d domainname.com
+```
+
 ## Subdomain take over
 
 Check [Can I take over xyz](https://github.com/EdOverflow/can-i-take-over-xyz) by EdOverflow for a list of services and how to claim (sub)domains with dangling DNS records.
@@ -178,7 +186,7 @@ go get github.com/anshumanbh/tko-subs
 
 ```bash
 git clone https://github.com/nahamsec/HostileSubBruteforcer
-chmox +x sub_brute.rb
+chmod +x sub_brute.rb
 ./sub_brute.rb
 ```
 
